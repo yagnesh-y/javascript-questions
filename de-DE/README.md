@@ -9,19 +9,21 @@ Die Antworten sind unterhalb der Fragen versteckt. Du kannst einfach darauf klic
 ### Alle verfügbaren Sprachen
 * [English](../en-EN/README.md)
 * [العربية](../ar-AR/README_AR.md)
-* [اللغة العامية](../ar-EG/README_ar-EG.md)
+* [اللغة العامية - Egyptian Arabic](../ar-EG/README_ar-EG.md)
 * [Bosanski](../bs-BS/README-bs_BS.md)  
 * [Deutsch](../de-DE/README.md)  
 * [Español](../es-ES/README-ES.md)
 * [Français](../fr-FR/README_fr-FR.md)
 * [日本語](../ja-JA/README-ja_JA.md)  
-* [한국어](../ko-KR/README-ko_KR.md) 
+* [한국어](../ko-KR/README-ko_KR.md)
+* [Nederlands](./nl-NL/README.md)
 * [Português Brasil](../pt-BR/README_pt_BR.md)  
-* [Русский](./ru-RU/README.md)
-* [Türkçe](../tr-TR/README-tr_TR.md)
+* [Русский](../ru-RU/README.md)
 * [Українська мова](../ua-UA/README-ua_UA.md)  
 * [Tiếng Việt](../vi-VI/README-vi.md)
 * [中文版本](../zh-CN/README-zh_CN.md)
+* [Türkçe](../tr-TR/README-tr_TR.md)
+* [ไทย](../th-TH/README-th_TH.md)
 
 ---
 
@@ -873,9 +875,9 @@ console.log(a[b]);
 
 Objekt Keys werden automatisch in Strings umgewandelt. Wir versuchen ein Objekt mit dem Wert `123` als Key dem Objekt `a` zuzuweisen.
 
-Allerdings wird ein Object, wenn es in einen String umgewandelt wird als `"[Object object]"` ausgegeben. Was wir hier also sagen ist, dass `a["Object object"] = 123` ist. Wir versuchen das gleiche erneut - `c` ist ein anderes Objekt, welches wir implizit zu einem String umwandeln, sodass `a["Object object"] = 456` ist.
+Allerdings wird ein Object, wenn es in einen String umgewandelt wird als `"[object Object]"` ausgegeben. Was wir hier also sagen ist, dass `a["object Object"] = 123` ist. Wir versuchen das gleiche erneut - `c` ist ein anderes Objekt, welches wir implizit zu einem String umwandeln, sodass `a["object Object"] = 456` ist.
 
-Dann loggen wir `a[b]`, was eigentlich `a["Object object"]` ist und gerade von uns zu `456` gesetzt wurde, sodass `456` ausgegeben wird.
+Dann loggen wir `a[b]`, was eigentlich `a["object Object"]` ist und gerade von uns zu `456` gesetzt wurde, sodass `456` ausgegeben wird.
 
 </p>
 </details>
@@ -1045,7 +1047,7 @@ typeof sayHi();
 
 Die `sayHi` Funktion gibt den Wert der sofort ausgeführten Funktion (IIFE) zurück. Die Funktion gibt `0` zurück, was vom Typ `"number"` ist.
 
-Es gibt nur 7 eingebaute Typen in JavaScript: `null`, `undefined`, `boolean`, `number`, `string`, `object`, und `symbol`. `"function"` ist kein Typ, weil Funktionen Objekte sind und daher dem Typ `"object"` entsprechen.
+Es gibt nur 7 eingebaute Typen in JavaScript: `null`, `undefined`, `boolean`, `number`, `string`, `object`, `symbol`, und `bigint`. `"function"` ist kein Typ, weil Funktionen Objekte sind und daher dem Typ `"object"` entsprechen.
 
 </p>
 </details>
@@ -3222,6 +3224,531 @@ Mit dem `||` Operator geben wir den ersten truthy Operand aus. Wenn alle Werte f
 `(null || false || "")`: alle Operanden sind falsy. Das bedeutet, dass der letzte Wert `""` ausgegeben wird. `two` ist gleich `""`.
 
 `([] || 0 || "")`: das leere Array `[]` ist truthy. Das ist der erste truthy Wert, und wird daher ausgegeben. `three` ist gleich `[]`.
+
+</p>
+</details>
+
+---
+
+###### 102. What's the value of output?
+
+```javascript
+const myPromise = () => Promise.resolve('I have resolved!')
+
+function firstFunction() {
+  myPromise().then(res => console.log(res))
+  console.log('second')
+}
+
+async function secondFunction() {
+  console.log(await myPromise())
+  console.log('second')
+}
+```
+
+- A: `I have resolved!`, `second` und `I have resolved!`, `second`
+- B: `second`, `I have resolved!` und `second`, `I have resolved!`
+- C: `I have resolved!`, `second` und `second`, `I have resolved!`
+- D: `second`, `I have resolved!` und `I have resolved!`, `second`
+
+<details><summary><b>Antwort</b></summary>
+<p>
+
+#### Antwort: D
+
+Mit einem Promise sagen wir _Ich möchte diese Funktion ausführen, aber ich lege sie erstmal beiseite, weil sie eine Weile braucht. Erst wenn ein bestimmter Wert ausgegeben (oder rejected) wird und der Call Stack leer ist möchte ich den Wert nutzen._
+
+Wir können auf den Wert mit `.then()` oder `await` in einer `async` Funktion zugreifen, aber `.then()` und `await` unterscheiden sich in einem bestimmten Punkt.
+
+In `firstFunction` legen wir `myPromise` beiseite, während die Funktion durchläuft, aber wir arbeiten anderen Code ab, hier `console.log('second')`. 
+Dann wird die Funktion abgeschlossen und der String `I have resolved` wird ausgegeben, nachdem sich der Call Stack geleert hat. 
+
+Mit dem `await` Keyword in `secondFunction` wird die Funktion gestoppt bis der Wert ausgegeben wurde, erst dann wird die nächste Zeile ausgeführt.
+
+Das bedeutet, dass auf `myPromise` gewartet und dann der Wert `I have resolved` ausgegeben wird und erst dann wird die nächste Zeile ausgeführt und `second` wird geloggt. 
+
+</p>
+</details>
+
+---
+
+###### 103. Was ist der Output?
+
+```javascript
+const set = new Set()
+
+set.add(1)
+set.add("Lydia")
+set.add({ name: "Lydia" })
+
+for (let item of set) {
+  console.log(item + 2)
+}
+```
+
+- A: `3`, `NaN`, `NaN`
+- B: `3`, `7`, `NaN`
+- C: `3`, `Lydia2`, `[object Object]2`
+- D: `"12"`, `Lydia2`, `[object Object]2`
+
+<details><summary><b>Antwort</b></summary>
+<p>
+
+#### Antwort: C
+
+Der `+` Operator wird nicht nur für numerische Werte verwendet, wir können mit ihm ebenso Strings zusammenfügen. Immer, wenn JavaScript merkt, dass mindestens ein Wert keine Nummer ist, wird ein String erstellt.
+
+Der erste Wert ist `1`, was ein numerischer Wert ist. `1 + 2` ergibt die Zahl `3`.
+
+Der zweite Wert hingegen ist der String `"Lydia"`. `"Lydia"` ist ein String und `2` ist eine Nummer: `2` wird in einem String umgewandelt. `"Lydia"` und `"2"` werden zusammengesetzt, was den String `"Lydia2"` ausgibt. 
+
+`{ name: "Lydia" }` ist ein Objekt. Weder eine Nummer, noch ein Objekt sind ein String, aber beide werden zu Strings konvertiert und `"[object Object]"` wird ausgegeben. `"[object Object]"` zusammengesetzt mit `"2"` wird `"[object Object]2"`.
+
+</p>
+</details>
+
+---
+
+###### 104. Was wird ausgegeben?
+
+```javascript
+Promise.resolve(5)
+```
+
+- A: `5`
+- B: `Promise {<pending>: 5}`
+- C: `Promise {<resolved>: 5}`
+- D: `Error`
+
+<details><summary><b>Antwort</b></summary>
+<p>
+
+#### Antwort: C
+
+Wir können jeden Wert an `Promise.resolve` übergeben, es muss nicht unbedingt ein Promise sein. Die Methode selbst gibt ein Promise zurück, was einen Wert ausgibt. Wenn man eine normale Funktion übergibt wird das Promise einen normalen Wert ausgeben. Wenn ein Promise übergeben wird so wird ein Promise gelöst und der Wert des gelösten Promises ausgegeben.
+
+In diesem Fall haben wir nur die Zahl `5` übergeben und diese wird genauso ausgegeben: `5`. 
+
+</p>
+</details>
+
+---
+
+###### 105. Was wird ausgegeben?
+
+```javascript
+function compareMembers(person1, person2 = person) {
+  if (person1 !== person2) {
+    console.log("Not the same!")
+  } else {
+    console.log("They are the same!")
+  }
+}
+
+const person = { name: "Lydia" }
+
+compareMembers(person)
+```
+
+- A: `Not the same!`
+- B: `They are the same!`
+- C: `ReferenceError`
+- D: `SyntaxError`
+
+<details><summary><b>Antwort</b></summary>
+<p>
+
+#### Antwort: B
+
+Objekte werden durch eine Referenz übergeben. Wenn wir Objekte auf strikte Gleichheit (`===`) prüfen, vergleichen wir nur deren Referenz.
+
+Wir setzen den Standardwert für `person2` gleich dem `person` Objekt und übergeben dem `person` Objekt den Wert von `person1`.
+
+Das bedeutet, dass beide Werte eine Referenz zum gleichen Ort im Speicher aufweisen und daher gleich sind.
+
+Der Code im `else` Statement wird aufgerufen und `They are the same!` wird geloggt. 
+
+</p>
+</details>
+
+---
+
+###### 106. Was wird ausgegeben?
+
+```javascript
+const colorConfig = {
+  red: true,
+  blue: false,
+  green: true,
+  black: true,
+  yellow: false,
+}
+
+const colors = ["pink", "red", "blue"]
+
+console.log(colorConfig.colors[1])
+```
+
+- A: `true`
+- B: `false`
+- C: `undefined`
+- D: `TypeError`
+
+<details><summary><b>Antwort</b></summary>
+<p>
+
+#### Antwort: D
+
+In JavaScript gibt es zwei Wege auf Properties an Objekten zuzugreifen: Punkt-Notation oder Klammern-Notation. In diesem Beispiel nutzen wir Punkt-Notation (`colorConfig.colors`) anstelle von Klammern-Notation (`colorConfig["colors"]`). 
+
+Mit Punkt-Notation versucht JavaScript die Property am Objekt mit diesem exakten Namen zu finden. In unserem Beispiel `colors` im `colorConfig` Objekt. Da es keine Property `colorConfig` gibt wird `undefined` ausgegeben. Dann versuchen wir den Wert des ersten Elements mit `[1]` aufzurufen, was an `undefined` nicht möglich ist, wodurch wir `TypeError: Cannot read property '1' of undefined` ausgegeben bekommen.
+
+JavaScript interpretiert Statements. Wenn wir Klammern-Notation verwenden wird die erste Klammer `[` gefunden und JavaScript sucht solange, bis eine schließende Klammer `]` gefunden wird. Erst dann wird das Statement interpretiert. Hätten wir `colorConfig[colors[1]]` verwendet, wäre der Wert `red` ausgegeben worden.
+
+</p>
+</details>
+
+---
+
+###### 107. Was wird ausgegeben?
+
+```javascript
+console.log('❤️' === '❤️')
+```
+
+- A: `true`
+- B: `false`
+
+<details><summary><b>Antwort</b></summary>
+<p>
+
+#### Antwort: A
+
+Emojis sind im Endeffekt nur Unicodes. Der Unicode für das Herz Emoji ist `"U+2764 U+FE0F"`. Dieser ist immer gleich, für das selbe Emoji und daher wird `true` ausgegeben.
+
+</p>
+</details>
+
+---
+
+###### 108. Welche Methode verändert das ursprüngliche Array? 
+
+```javascript
+const emojis = ['✨', '🥑', '😍']
+
+emojis.map(x => x + '✨')
+emojis.filter(x => x !== '🥑')
+emojis.find(x => x !== '🥑')
+emojis.reduce((acc, cur) => acc + '✨')
+emojis.slice(1, 2, '✨') 
+emojis.splice(1, 2, '✨')
+```
+
+- A: `All of them`
+- B: `map` `reduce` `slice` `splice`
+- C: `map` `slice` `splice` 
+- D: `splice`
+
+<details><summary><b>Antwort</b></summary>
+<p>
+
+#### Antwort: D
+
+Mit der `splice` Methode ändern wir das ursprüngliche Array durch löschen, ersetzen oder ergänzen von Elementen. In diesem Fall haben wir 2 Elemente vom Index 1 (`'🥑'` und `'😍'`) entfernt und ✨ stattdessen eingefügt. 
+
+`map`, `filter` und `slice` geben ein neues Array aus, `find` gibt ein Element aus und `reduce` gibt einen neuen Wert aus.
+
+</p>
+</details>
+
+
+---
+
+###### <a name=20191009></a>109. Was ist der Output?
+
+```javascript
+const food = ['🍕', '🍫', '🥑', '🍔']
+const info = { favoriteFood: food[0] }
+
+info.favoriteFood = '🍝'
+
+console.log(food)
+```
+
+- A: `['🍕', '🍫', '🥑', '🍔']`
+- B: `['🍝', '🍫', '🥑', '🍔']`
+- C: `['🍝', '🍕', '🍫', '🥑', '🍔']` 
+- D: `ReferenceError`
+
+<details><summary><b>Antwort</b></summary>
+<p>
+
+#### Antwort: A
+
+In JavaScript interagieren primitive Datentypen (alles außer Objekte) anhand des _Wertes_. In diesem Beispiel setzen wir den Wert von `favoriteFood` am `info` Objekt gleich dem Wert des ersten Elements im `food` Array, in dem Fall ein String mit dem Pizza Emoji (`'🍕'`). Ein String ist ein primitiver Datentyp und agiert daher in JavaScript nach Referenz. (Siehe mein [Blogpost](https://www.theavocoder.com/complete-javascript/2018/12/21/by-value-vs-by-reference) für mehr Informationen)
+
+Dann ändern wir den Wert von `favoriteFood` am `info` Objekt. Das `food` Array hat sich nicht verändert, da der Wert von `favoriteFood` nur eine _Kopie_ des Wertes des ersten Elements im Array war und keine Referenz zum Element `food[0]` im Speicher finden kann. Wenn wir also das Essen loggen ist es immernoch das ursprüngliche Array `['🍕', '🍫', '🥑', '🍔']`.
+
+</p>
+</details>
+
+---
+
+###### 110. Was macht diese Methode?
+
+```javascript
+JSON.parse()
+```
+
+- A: Parsed JSON in einen JavaScript Wert
+- B: Parsed ein JavaScript Objekt zu JSON
+- C: Parsed jegliche JavaScript Werte zu JSON
+- D: Parsed JSON zu jeglichem JavaScript Objekt
+
+<details><summary><b>Antwort</b></summary>
+<p>
+
+#### Antwort: A
+
+Mit der `JSON.parse()` Methode können wir einen JSON String zu einem JavaScript Wert umwandeln.
+
+```javascript
+// Stringifying a number into valid JSON, then parsing the JSON string to a JavaScript value:
+const jsonNumber = JSON.stringify(4) // '4'
+JSON.parse(jsonNumber) // 4
+
+// Stringifying an array value into valid JSON, then parsing the JSON string to a JavaScript value:
+const jsonArray = JSON.stringify([1, 2, 3]) // '[1, 2, 3]'
+JSON.parse(jsonArray) // [1, 2, 3]
+
+// Stringifying an object  into valid JSON, then parsing the JSON string to a JavaScript value:
+const jsonArray = JSON.stringify({ name: "Lydia" }) // '{"name":"Lydia"}'
+JSON.parse(jsonArray) // { name: 'Lydia' }
+```
+
+</p>
+</details>
+
+---
+
+###### 111. Was ist der Output? 
+
+```javascript
+let name = 'Lydia'
+
+function getName() {
+  console.log(name)
+  let name = 'Sarah'
+}
+
+getName()
+```
+
+- A: Lydia
+- B: Sarah
+- C: `undefined`
+- D: `ReferenceError`
+
+<details><summary><b>Antwort</b></summary>
+<p>
+
+#### Antwort: D
+
+Jede Funktion hat ihren eigenen _Ausführungskontext_ (oder _scope_). Die `getName` Funktion sucht zuerst in ihrem eigenen Kontext (scope) um zu sehen, ob sie den Wert `name` finden kann. In diesem Fall beinhaltet die `getName` Funktion ihre eigene Variable `name`: wir setzen die Variable `name` mit dem `let` Keyword und dem Wert `'Sarah'`.
+
+Variablen mit dem `let` und `const` Keyword werden gehoisted, aber entgegen `var` werden diese nicht _initialisiert_. Sie sind nicht aufrufbar, bevor wir sie deklarieren (initialisieren). Das ist eine "vorübergehende tote Zone" (temporal dead zone). Wir bekommen einen `ReferenceError` ausgegeben.
+
+Hätten wir die `name` Variable nicht innerhalb `getName` deklariert, so hätte JavaScript außerhalb der Funktion in der _Scope-Kette_ weitergesucht. Der äußere Scope beinhaltet ebenfalls eine Variable `name` mit dem Wert `'Lydia'`. In diesem Fall wäre `Lydia` geloggt worden.
+
+```javascript
+let name = 'Lydia'
+
+function getName() {
+  console.log(name)
+}
+
+getName() // Lydia
+```
+
+</p>
+</details>
+
+---
+
+###### 112. Was ist der Output?
+
+```javascript
+function* generatorOne() {
+  yield ['a', 'b', 'c'];
+}
+
+function* generatorTwo() {
+  yield* ['a', 'b', 'c'];
+}
+
+const one = generatorOne()
+const two = generatorTwo()
+
+console.log(one.next().value)
+console.log(two.next().value)
+```
+
+- A: `a` and `a`
+- B: `a` and `undefined`
+- C: `['a', 'b', 'c']` and `a`
+- D: `a` and `['a', 'b', 'c']`
+
+<details><summary><b>Antwort</b></summary>
+<p>
+
+#### Antwort: C
+
+Mit dem `yield` Keyword, halten wir Werte in einer Generator-Funktion. Mit dem `yield*` Keyword können wir Werte einer anderen Generator-Funktion oder Objekte und Arrays halten.
+
+In `generatorOne` halten wir das gesamte Array `['a', 'b', 'c']` mit dem `yield` Keyword. Der Wert von `value` am Objekt gibt die `next` Methode an `one` (`one.next().value`) aus, was dem gesamten Array entspricht: `['a', 'b', 'c']`.
+
+```javascript
+console.log(one.next().value) // ['a', 'b', 'c']
+console.log(one.next().value) // undefined
+```
+
+In `generatorTwo` verwenden wir das `yield*` Keyword. Das bedeutet, dass der erste gehaltene Wert von `two` gleich dem ersten gehaltenen Wert ist. Das ist das Array `['a', 'b', 'c']`. Der erste gehaltene Wert ist `a`, was ausgegeben wird.
+
+```javascript
+console.log(two.next().value) // 'a'
+console.log(two.next().value) // 'b'
+console.log(two.next().value) // 'c'
+console.log(two.next().value) // undefined
+```
+
+</p>
+</details>
+
+---
+
+###### 113. Was ist der Output?
+
+```javascript
+console.log(`${(x => x)('I love')} to program`)
+```
+
+- A: `I love to program`
+- B: `undefined to program`
+- C: `${(x => x)('I love') to program`
+- D: `TypeError`
+
+<details><summary><b>Antwort</b></summary>
+<p>
+
+#### Antwort: A
+
+Expressions innerhalb von Template Literals werden zuerst berechnet. Das bedeutet, dass der String den ausgegebenen Wert der Expression beinhaltet, hier die IIFE (immediately invoked Function) `(x => x)('I love')`. Wir geben den Wert `'I love'` als Argument an die `x => x` Arrow Funktion. `x` ist gleich `'I love'` und wird ausgegeben. Das Ergebnis ist `I love to program`. 
+
+</p>
+</details>
+
+---
+
+###### 114. What will happen?
+
+```javascript
+let config = {
+  alert: setInterval(() => {
+    console.log('Alert!)
+  }, 1000)
+}
+
+config = null
+```
+
+- A: Die `setInterval` Callback Funktion wird nicht aufgerufen
+- B: Die `setInterval` Callback Funktion wird ein Mal aufgerufen
+- C: Die `setInterval` Callback Funktion wird weiterhin jede Sekunde aufgerufen
+- D: Wir haben `config.alert()` nie aufgerufen, `config` ist `null`
+
+<details><summary><b>Antwort</b></summary>
+<p>
+
+#### Antwort: C
+
+Wenn wir normalerweise Objekte gleich `null` setzen, werden diese _verworfen_, weil keine Referenz mehr zu ihnen existiert. Da die Callback Funktion in `setInterval` eine Arrow Funktion (und daher an `config` gebunden) ist, hält die Callback Funktion immernoch eine Referenz zum `config` Objekt. Solange eine Referenz besteht, wird das Objekt nicht verworfen und die `setInterval` Funktion wird weiterhin alle 1000ms (1 Sekunde) aufgerufen.
+
+</p>
+</details>
+
+---
+
+###### 115. Welche Methode(n) geben den Wert `'Hello world!'` aus?
+
+```javascript
+const myMap = new Map()
+const myFunc = () => 'greeting'
+
+myMap.set(myFunc, 'Hello world!')
+
+//1
+myMap.get('greeting')
+//2
+myMap.get(myFunc)
+//3
+myMap.get(() => 'greeting'))
+```
+
+- A: 1
+- B: 2
+- C: 2 und 3
+- D: Alle
+
+<details><summary><b>Antwort</b></summary>
+<p>
+
+#### Antwort: B
+
+Beim Setzen eines Key/Wert Paars mit der `set` Methode wird der Key als erstes Argument an die `set` Funktion übergeben und der Wert wird als zweites Argument eingegeben. Der Key ist die _Funktion_ `() => 'greeting'` und der Wert ist `'Hello world'`. `myMap` ist jetzt `{ () => 'greeting' => 'Hello world!' }`. 
+
+1 ist falsch, weil der Key nicht `'greeting'`, sondern `() => 'greeting'` ist.
+3 ist falsch, weil wir eine neue Funktion erstellen, indem wir sie als Argument übergeben. Objekte interagieren anhand von _Referenzen_. Funktionen sind Objekte, weshalb zwei Funktionen streng gesehen nie gleich sind, selbst wenn sie sich nicht unterscheiden.
+
+</p>
+</details>
+
+---
+
+###### 116. Was ist der Output?
+
+```javascript
+const person = {
+  name: "Lydia",
+  age: 21
+}
+
+const changeAge = (x = { ...person }) => x.age += 1
+const changeAgeAndName = (x = { ...person }) => {
+  x.age += 1
+  x.name = "Sarah"
+}
+
+changeAge(person)
+changeAgeAndName()
+
+console.log(person)
+```
+
+- A: `{name: "Sarah", age: 22}`
+- B: `{name: "Sarah", age: 23}`
+- C: `{name: "Lydia", age: 22}`
+- D: `{name: "Lydia", age: 23}`
+
+<details><summary><b>Antwort</b></summary>
+<p>
+
+#### Antwort: C
+
+Beide Funktionen, `changeAge` und `changeAgeAndName`, haben Standard Parameter, nämlich ein neu erstelltes Objekt `{ ...person }`. Dieses Objekt hat Kopien aller Key/Werte Paare im `person` Objekt.
+
+Zuerst führen wir die `changeAge` Funktion aus und übergeben ihr das `person` Objekt als Argument. Daher wird `age` um 1 erhöht. `person` ist jetzt `{ name: "Lydia", age: 22 }`.
+
+Dann führen wir `changeAgeAndName` aus, allerdings ohne Parameter. Stattdessen ist der Wert von `x` gleich dem neuen Objekt `{ ...person }`. Da dies ein neues Objekt ist hat es keinen Einfluss auf die Werte des `person` Objekts. `person` ist immernoch gleich `{ name: "Lydia", age: 22 }`.
 
 </p>
 </details>
